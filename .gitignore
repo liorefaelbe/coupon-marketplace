@@ -1,0 +1,5 @@
+# Ignore the build output and dependencies
+backend/bin
+node_modules
+.env
+*.docx
