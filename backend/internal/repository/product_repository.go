@@ -96,3 +96,53 @@ func (r *ProductRepository) GetAvailable() ([]models.Product, error) {
 
 	return products, rows.Err()
 }
+
+type AvailableProductResponse struct {
+	ID          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	ImageURL    string  `json:"image_url"`
+	Price       float64 `json:"price"`
+}
+
+func (r *ProductRepository) GetAvailableForAPI() ([]AvailableProductResponse, error) {
+	query := `
+		SELECT
+			p.id,
+			p.name,
+			p.description,
+			p.image_url,
+			c.minimum_sell_price
+		FROM products p
+		INNER JOIN coupons c ON c.product_id = p.id
+		WHERE c.is_sold = FALSE
+		ORDER BY p.created_at DESC
+	`
+
+	rows, err := database.DB.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []AvailableProductResponse
+
+	for rows.Next() {
+		var product AvailableProductResponse
+
+		err := rows.Scan(
+			&product.ID,
+			&product.Name,
+			&product.Description,
+			&product.ImageURL,
+			&product.Price,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, product)
+	}
+
+	return products, rows.Err()
+}

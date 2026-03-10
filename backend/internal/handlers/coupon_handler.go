@@ -42,3 +42,15 @@ func (h *CouponHandler) CreateCoupon(c *gin.Context) {
 		"coupon":  coupon,
 	})
 }
+
+func (h *CouponHandler) GetAvailableProducts(c *gin.Context) {
+	products, err := h.service.GetAvailableProducts()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "failed to fetch products",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, products)
+}

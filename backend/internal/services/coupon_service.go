@@ -88,3 +88,7 @@ func (s *CouponService) CreateCoupon(input CreateCouponInput) (*models.Product, 
 
 	return product, coupon, nil
 }
+
+func (s *CouponService) GetAvailableProducts() ([]repository.AvailableProductResponse, error) {
+	return s.productRepo.GetAvailableForAPI()
+}
