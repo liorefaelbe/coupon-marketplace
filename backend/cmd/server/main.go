@@ -23,5 +23,5 @@ func main() {
 	router.GET("/api/v1/products/:id", couponHandler.GetProductByID)
 	router.GET("/api/v1/products", couponHandler.GetAvailableProducts)
 
-	router.Run(":8080")
+	router.Run("127.0.0.1:8080")
 }
