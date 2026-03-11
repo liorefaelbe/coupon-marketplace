@@ -92,3 +92,7 @@ func (s *CouponService) CreateCoupon(input CreateCouponInput) (*models.Product, 
 func (s *CouponService) GetAvailableProducts() ([]repository.AvailableProductResponse, error) {
 	return s.productRepo.GetAvailableForAPI()
 }
+
+func (s *CouponService) GetProductByID(id string) (*repository.AvailableProductResponse, error) {
+	return s.productRepo.GetAvailableByIDForAPI(id)
+}

@@ -146,3 +146,32 @@ func (r *ProductRepository) GetAvailableForAPI() ([]AvailableProductResponse, er
 
 	return products, rows.Err()
 }
+
+func (r *ProductRepository) GetAvailableByIDForAPI(id string) (*AvailableProductResponse, error) {
+	query := `
+		SELECT
+			p.id,
+			p.name,
+			p.description,
+			p.image_url,
+			c.minimum_sell_price
+		FROM products p
+		INNER JOIN coupons c ON c.product_id = p.id
+		WHERE p.id = $1
+	`
+
+	var product AvailableProductResponse
+
+	err := database.DB.QueryRow(context.Background(), query, id).Scan(
+		&product.ID,
+		&product.Name,
+		&product.Description,
+		&product.ImageURL,
+		&product.Price,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &product, nil
+}
