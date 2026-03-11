@@ -11,16 +11,24 @@ import (
 )
 
 func main() {
-
 	database.Connect()
+
 	router := gin.Default()
 
 	router.GET("/health", func(c *gin.Context) {
-		c.String(http.StatusOK, "OK")
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
 	couponHandler := handlers.NewCouponHandler()
-	router.POST("/admin/coupons", couponHandler.CreateCoupon)
+
+	admin := router.Group("/admin")
+	{
+		admin.POST("/coupons", couponHandler.CreateCoupon)
+		admin.GET("/products", couponHandler.GetAdminProducts)
+		admin.GET("/products/:id", couponHandler.GetAdminProductByID)
+		admin.PUT("/products/:id", couponHandler.UpdateAdminProduct)
+		admin.DELETE("/products/:id", couponHandler.DeleteAdminProduct)
+	}
 
 	apiV1 := router.Group("/api/v1")
 	apiV1.Use(middleware.ResellerAuth())

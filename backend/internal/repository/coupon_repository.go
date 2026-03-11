@@ -61,7 +61,6 @@ func (r *CouponRepository) GetByProductID(productID string) (*models.Coupon, err
 		&coupon.ValueType,
 		&coupon.Value,
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +69,6 @@ func (r *CouponRepository) GetByProductID(productID string) (*models.Coupon, err
 }
 
 func (r *CouponRepository) Purchase(productID string, resellerPrice float64) (*models.Coupon, error) {
-
 	tx, err := database.DB.Begin(context.Background())
 	if err != nil {
 		return nil, err
@@ -118,10 +116,79 @@ func (r *CouponRepository) Purchase(productID string, resellerPrice float64) (*m
 		return nil, err
 	}
 
-	err = tx.Commit(context.Background())
-	if err != nil {
+	if err := tx.Commit(context.Background()); err != nil {
 		return nil, err
 	}
 
 	return &coupon, nil
+}
+
+func (r *CouponRepository) UpdateCouponAndProduct(
+	productID string,
+	name string,
+	description string,
+	imageURL string,
+	costPrice float64,
+	marginPercentage float64,
+	valueType string,
+	value string,
+) error {
+	tx, err := database.DB.Begin(context.Background())
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(context.Background())
+
+	minimumSellPrice := costPrice * (1 + marginPercentage/100)
+
+	productQuery := `
+		UPDATE products
+		SET name = $1,
+			description = $2,
+			image_url = $3,
+			updated_at = NOW()
+		WHERE id = $4
+	`
+
+	result, err := tx.Exec(
+		context.Background(),
+		productQuery,
+		name,
+		description,
+		imageURL,
+		productID,
+	)
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return errors.New("PRODUCT_NOT_FOUND")
+	}
+
+	couponQuery := `
+		UPDATE coupons
+		SET cost_price = $1,
+			margin_percentage = $2,
+			minimum_sell_price = $3,
+			value_type = $4,
+			value = $5
+		WHERE product_id = $6
+	`
+
+	_, err = tx.Exec(
+		context.Background(),
+		couponQuery,
+		costPrice,
+		marginPercentage,
+		minimumSellPrice,
+		valueType,
+		value,
+		productID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(context.Background())
 }

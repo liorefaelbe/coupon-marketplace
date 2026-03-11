@@ -32,29 +32,65 @@ type CreateCouponInput struct {
 	Value            string  `json:"value"`
 }
 
+type PurchaseInput struct {
+	ResellerPrice float64 `json:"reseller_price"`
+}
+
+type UpdateCouponInput struct {
+	Name             string  `json:"name"`
+	Description      string  `json:"description"`
+	ImageURL         string  `json:"image_url"`
+	CostPrice        float64 `json:"cost_price"`
+	MarginPercentage float64 `json:"margin_percentage"`
+	ValueType        string  `json:"value_type"`
+	Value            string  `json:"value"`
+}
+
+func (s *CouponService) validateCouponFields(
+	name string,
+	imageURL string,
+	costPrice float64,
+	marginPercentage float64,
+	valueType string,
+	value string,
+) error {
+	if strings.TrimSpace(name) == "" {
+		return errors.New("name is required")
+	}
+
+	if strings.TrimSpace(imageURL) == "" {
+		return errors.New("image_url is required")
+	}
+
+	if costPrice < 0 {
+		return errors.New("cost_price must be greater than or equal to 0")
+	}
+
+	if marginPercentage < 0 {
+		return errors.New("margin_percentage must be greater than or equal to 0")
+	}
+
+	if strings.TrimSpace(valueType) == "" {
+		return errors.New("value_type is required")
+	}
+
+	if strings.TrimSpace(value) == "" {
+		return errors.New("value is required")
+	}
+
+	return nil
+}
+
 func (s *CouponService) CreateCoupon(input CreateCouponInput) (*models.Product, *models.Coupon, error) {
-	if strings.TrimSpace(input.Name) == "" {
-		return nil, nil, errors.New("name is required")
-	}
-
-	if strings.TrimSpace(input.ImageURL) == "" {
-		return nil, nil, errors.New("image_url is required")
-	}
-
-	if input.CostPrice < 0 {
-		return nil, nil, errors.New("cost_price must be greater than or equal to 0")
-	}
-
-	if input.MarginPercentage < 0 {
-		return nil, nil, errors.New("margin_percentage must be greater than or equal to 0")
-	}
-
-	if strings.TrimSpace(input.ValueType) == "" {
-		return nil, nil, errors.New("value_type is required")
-	}
-
-	if strings.TrimSpace(input.Value) == "" {
-		return nil, nil, errors.New("value is required")
+	if err := s.validateCouponFields(
+		input.Name,
+		input.ImageURL,
+		input.CostPrice,
+		input.MarginPercentage,
+		input.ValueType,
+		input.Value,
+	); err != nil {
+		return nil, nil, err
 	}
 
 	productID := uuid.New().String()
@@ -97,10 +133,42 @@ func (s *CouponService) GetProductByID(id string) (*repository.AvailableProductR
 	return s.productRepo.GetAvailableByIDForAPI(id)
 }
 
-type PurchaseInput struct {
-	ResellerPrice float64 `json:"reseller_price"`
-}
-
 func (s *CouponService) Purchase(productID string, price float64) (*models.Coupon, error) {
 	return s.couponRepo.Purchase(productID, price)
+}
+
+func (s *CouponService) GetAllAdminProducts() ([]repository.AdminProductDetails, error) {
+	return s.productRepo.GetAllAdminProducts()
+}
+
+func (s *CouponService) GetAdminProductByID(id string) (*repository.AdminProductDetails, error) {
+	return s.productRepo.GetAdminProductByID(id)
+}
+
+func (s *CouponService) DeleteProduct(id string) error {
+	return s.productRepo.DeleteByID(id)
+}
+
+func (s *CouponService) UpdateCoupon(productID string, input UpdateCouponInput) error {
+	if err := s.validateCouponFields(
+		input.Name,
+		input.ImageURL,
+		input.CostPrice,
+		input.MarginPercentage,
+		input.ValueType,
+		input.Value,
+	); err != nil {
+		return err
+	}
+
+	return s.couponRepo.UpdateCouponAndProduct(
+		productID,
+		input.Name,
+		input.Description,
+		input.ImageURL,
+		input.CostPrice,
+		input.MarginPercentage,
+		input.ValueType,
+		input.Value,
+	)
 }
