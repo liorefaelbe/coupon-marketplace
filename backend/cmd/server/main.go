@@ -51,6 +51,8 @@ func main() {
 
 	store := router.Group("/store")
 	{
+		store.GET("/products", couponHandler.GetAvailableProducts)
+		store.GET("/products/:id", couponHandler.GetProductByID)
 		store.POST("/products/:id/purchase", couponHandler.PurchaseDirect)
 	}
 

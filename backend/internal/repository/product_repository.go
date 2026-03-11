@@ -138,7 +138,7 @@ func (r *ProductRepository) GetAvailableForAPI() ([]AvailableProductResponse, er
 	}
 	defer rows.Close()
 
-	var products []AvailableProductResponse
+	products := make([]AvailableProductResponse, 0)
 
 	for rows.Next() {
 		var product AvailableProductResponse
