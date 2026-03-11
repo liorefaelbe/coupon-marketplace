@@ -1,5 +1,4 @@
 services:
-
   postgres:
     image: postgres:15
     container_name: coupon-postgres
@@ -11,7 +10,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+      - ./backend/db/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
+      - ./backend/db/migrations/002_seed_data.sql:/docker-entrypoint-initdb.d/002_seed_data.sql
   backend:
     build: ./backend
     container_name: coupon-backend
