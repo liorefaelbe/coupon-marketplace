@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -10,7 +11,12 @@ import (
 var DB *pgxpool.Pool
 
 func Connect() {
-	connStr := "postgres://postgres:postgres@localhost:5432/coupons?sslmode=disable"
+
+	connStr := os.Getenv("DATABASE_URL")
+
+	if connStr == "" {
+		connStr = "postgres://postgres:postgres@localhost:5432/coupons?sslmode=disable"
+	}
 
 	pool, err := pgxpool.New(context.Background(), connStr)
 	if err != nil {
