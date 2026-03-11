@@ -172,3 +172,7 @@ func (s *CouponService) UpdateCoupon(productID string, input UpdateCouponInput) 
 		input.Value,
 	)
 }
+
+func (s *CouponService) PurchaseDirect(productID string) (*models.Coupon, error) {
+	return s.couponRepo.PurchaseDirect(productID)
+}

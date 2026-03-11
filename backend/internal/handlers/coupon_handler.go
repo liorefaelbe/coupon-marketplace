@@ -291,3 +291,47 @@ func (h *CouponHandler) DeleteAdminProduct(c *gin.Context) {
 
 	c.Status(http.StatusNoContent)
 }
+
+func (h *CouponHandler) PurchaseDirect(c *gin.Context) {
+	id := c.Param("id")
+
+	if _, err := uuid.Parse(id); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error_code": "INVALID_PRODUCT_ID",
+			"message":    "Invalid product ID format",
+		})
+		return
+	}
+
+	coupon, err := h.service.PurchaseDirect(id)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error_code": "PRODUCT_NOT_FOUND",
+				"message":    "Product not found",
+			})
+			return
+		}
+
+		if err.Error() == "PRODUCT_ALREADY_SOLD" {
+			c.JSON(http.StatusConflict, gin.H{
+				"error_code": "PRODUCT_ALREADY_SOLD",
+				"message":    "Product already sold",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error_code": "INTERNAL_ERROR",
+			"message":    "Purchase failed",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"product_id":  coupon.ProductID,
+		"final_price": coupon.MinimumSellPrice,
+		"value_type":  coupon.ValueType,
+		"value":       coupon.Value,
+	})
+}

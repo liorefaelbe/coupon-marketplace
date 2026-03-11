@@ -192,3 +192,54 @@ func (r *CouponRepository) UpdateCouponAndProduct(
 
 	return tx.Commit(context.Background())
 }
+
+func (r *CouponRepository) PurchaseDirect(productID string) (*models.Coupon, error) {
+	tx, err := database.DB.Begin(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(context.Background())
+
+	query := `
+		SELECT product_id, cost_price, margin_percentage, minimum_sell_price, is_sold, value_type, value
+		FROM coupons
+		WHERE product_id = $1
+		FOR UPDATE
+	`
+
+	var coupon models.Coupon
+
+	err = tx.QueryRow(context.Background(), query, productID).Scan(
+		&coupon.ProductID,
+		&coupon.CostPrice,
+		&coupon.MarginPercentage,
+		&coupon.MinimumSellPrice,
+		&coupon.IsSold,
+		&coupon.ValueType,
+		&coupon.Value,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if coupon.IsSold {
+		return nil, errors.New("PRODUCT_ALREADY_SOLD")
+	}
+
+	updateQuery := `
+		UPDATE coupons
+		SET is_sold = TRUE
+		WHERE product_id = $1
+	`
+
+	_, err = tx.Exec(context.Background(), updateQuery, productID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(context.Background()); err != nil {
+		return nil, err
+	}
+
+	return &coupon, nil
+}
