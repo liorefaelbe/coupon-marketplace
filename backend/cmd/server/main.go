@@ -20,6 +20,7 @@ func main() {
 
 	couponHandler := handlers.NewCouponHandler()
 	router.POST("/admin/coupons", couponHandler.CreateCoupon)
+	router.POST("/api/v1/products/:id/purchase", couponHandler.Purchase)
 	router.GET("/api/v1/products/:id", couponHandler.GetProductByID)
 	router.GET("/api/v1/products", couponHandler.GetAvailableProducts)
 

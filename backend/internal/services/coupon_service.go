@@ -96,3 +96,11 @@ func (s *CouponService) GetAvailableProducts() ([]repository.AvailableProductRes
 func (s *CouponService) GetProductByID(id string) (*repository.AvailableProductResponse, error) {
 	return s.productRepo.GetAvailableByIDForAPI(id)
 }
+
+type PurchaseInput struct {
+	ResellerPrice float64 `json:"reseller_price"`
+}
+
+func (s *CouponService) Purchase(productID string, price float64) (*models.Coupon, error) {
+	return s.couponRepo.Purchase(productID, price)
+}

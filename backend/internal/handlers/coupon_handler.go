@@ -87,3 +87,50 @@ func (h *CouponHandler) GetProductByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, product)
 }
+
+func (h *CouponHandler) Purchase(c *gin.Context) {
+
+	id := c.Param("id")
+
+	var input services.PurchaseInput
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid request",
+		})
+		return
+	}
+
+	coupon, err := h.service.Purchase(id, input.ResellerPrice)
+	if err != nil {
+
+		switch err.Error() {
+
+		case "PRODUCT_ALREADY_SOLD":
+			c.JSON(http.StatusConflict, gin.H{
+				"error_code": "PRODUCT_ALREADY_SOLD",
+				"message":    "Product already sold",
+			})
+			return
+
+		case "RESELLER_PRICE_TOO_LOW":
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error_code": "RESELLER_PRICE_TOO_LOW",
+				"message":    "Reseller price below minimum",
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "purchase failed",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"product_id":  coupon.ProductID,
+		"final_price": input.ResellerPrice,
+		"value_type":  coupon.ValueType,
+		"value":       coupon.Value,
+	})
+}
