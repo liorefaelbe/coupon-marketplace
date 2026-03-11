@@ -9,6 +9,7 @@ bin/
 *.dylib
 *.test
 *.out
+*.docx
 
 # --------------------
 # Go workspace
