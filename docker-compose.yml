@@ -3,7 +3,6 @@ services:
   postgres:
     image: postgres:15
     container_name: coupon-postgres
-    restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -12,6 +11,17 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: coupon-backend
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/coupons
+      RESELLER_TOKEN: super-secret-reseller-token
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:
