@@ -12,6 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/db/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql
       - ./backend/db/migrations/002_seed_data.sql:/docker-entrypoint-initdb.d/002_seed_data.sql
+
   backend:
     build: ./backend
     container_name: coupon-backend
@@ -24,6 +25,14 @@ services:
       ADMIN_PASSWORD: admin123
     ports:
       - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: coupon-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
 
 volumes:
   postgres_data:
