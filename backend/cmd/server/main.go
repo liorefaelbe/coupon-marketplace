@@ -33,6 +33,7 @@ func main() {
 	couponHandler := handlers.NewCouponHandler()
 
 	admin := router.Group("/admin")
+	admin.Use(middleware.AdminAuth())
 	{
 		admin.POST("/coupons", couponHandler.CreateCoupon)
 		admin.GET("/products", couponHandler.GetAdminProducts)
@@ -41,19 +42,19 @@ func main() {
 		admin.DELETE("/products/:id", couponHandler.DeleteAdminProduct)
 	}
 
+	store := router.Group("/store")
+	{
+		store.GET("/products", couponHandler.GetAvailableProducts)
+		store.GET("/products/:id", couponHandler.GetProductByID)
+		store.POST("/products/:id/purchase", couponHandler.PurchaseDirect)
+	}
+
 	apiV1 := router.Group("/api/v1")
 	apiV1.Use(middleware.ResellerAuth())
 	{
 		apiV1.GET("/products", couponHandler.GetAvailableProducts)
 		apiV1.GET("/products/:id", couponHandler.GetProductByID)
 		apiV1.POST("/products/:id/purchase", couponHandler.Purchase)
-	}
-
-	store := router.Group("/store")
-	{
-		store.GET("/products", couponHandler.GetAvailableProducts)
-		store.GET("/products/:id", couponHandler.GetProductByID)
-		store.POST("/products/:id/purchase", couponHandler.PurchaseDirect)
 	}
 
 	router.Run(":8080")

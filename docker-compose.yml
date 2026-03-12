@@ -18,8 +18,10 @@ services:
     depends_on:
       - postgres
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/coupons
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/coupons?sslmode=disable
       RESELLER_TOKEN: super-secret-reseller-token
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin123
     ports:
       - "8080:8080"
 

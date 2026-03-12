@@ -21,7 +21,7 @@ select {
 }
 
 .hero {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto 24px;
 }
 
@@ -35,8 +35,29 @@ select {
   color: #4b5563;
 }
 
+.tabs {
+  max-width: 1100px;
+  margin: 0 auto 24px;
+  display: flex;
+  gap: 12px;
+}
+
+.tab {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: #e5e7eb;
+  color: #111827;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: #111827;
+  color: white;
+}
+
 .card {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
   background: white;
   border-radius: 18px;
@@ -63,7 +84,7 @@ select {
 
 .productCard {
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: 160px 1fr;
   gap: 16px;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
@@ -74,7 +95,7 @@ select {
 .productCard img {
   width: 100%;
   height: 100%;
-  min-height: 120px;
+  min-height: 140px;
   object-fit: cover;
   background: #e5e7eb;
 }
@@ -100,6 +121,70 @@ select {
   gap: 12px;
 }
 
+.form {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.92;
+}
+
+.dangerButton {
+  background: #b91c1c;
+}
+
+.adminAuthBox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.adminListHeader {
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+.adminListHeader h3 {
+  margin: 0;
+}
+
+.adminTableWrapper {
+  overflow-x: auto;
+}
+
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.adminTable th,
+.adminTable td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+}
+
 .message {
   margin-top: 16px;
   padding: 14px;
@@ -117,12 +202,26 @@ select {
   color: #991b1b;
 }
 
+.message.info {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
 @media (max-width: 900px) {
+  .adminAuthBox {
+    grid-template-columns: 1fr;
+  }
+
   .productCard {
     grid-template-columns: 1fr;
   }
 
   .productBody {
     padding: 14px;
+  }
+
+  .productFooter {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
