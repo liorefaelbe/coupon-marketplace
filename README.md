@@ -76,40 +76,39 @@ Rules enforced by the backend:
 
 ---
 
-PROJECT STRUCTURE
-
+## Project Structure
+```text
 coupon-marketplace
+├── backend
+│   ├── cmd
+│   │   └── server
+│   │       └── main.go
+│   ├── db
+│   │   └── migrations
+│   │       ├── 001_init.sql
+│   │       └── 002_seed_data.sql
+│   └── internal
+│       ├── database
+│       │   └── db.go
+│       ├── handlers
+│       ├── middleware
+│       ├── models
+│       ├── repository
+│       └── services
 │
-├ backend
-│ ├ cmd
-│ │ └ server
-│ │ └ main.go
-│ ├ db
-│ │ └ migrations
-│ │ ├ 001_init.sql
-│ │ └ 002_seed_data.sql
-│ └ internal
-│ ├ database
-│ │ └ db.go
-│ ├ handlers
-│ ├ middleware
-│ ├ models
-│ ├ repository
-│ └ services
+├── frontend
+│   ├── public
+│   └── src
+│       ├── api
+│       ├── assets
+│       ├── components
+│       ├── pages
+│       └── types
 │
-├ frontend
-│ ├ public
-│ └ src
-│ ├ api
-│ ├ assets
-│ ├ components
-│ ├ pages
-│ └ types
-│
-├ docker-compose.yml
-├ README.md
-└ .gitignore
-
+├── docker-compose.yml
+├── README.md
+└── .gitignore
+```
 ---
 
 RUNNING THE PROJECT
