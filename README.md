@@ -1,203 +1,259 @@
 # Digital Coupon Marketplace
 
-Backend service for managing and selling digital coupons to resellers.
+A full-stack digital coupon marketplace built with Go, PostgreSQL, React and Docker.
 
-The system allows administrators to create and manage digital coupons,
-while resellers can browse available products and purchase coupons
-through an authenticated API.
+The system supports three flows:
+
+- Admin can create and manage coupon products
+- Direct Customer can purchase coupons directly from the website
+- Resellers can integrate through a REST API
 
 ---
 
 TECH STACK
 
+Backend
+
 - Go
-- Gin (HTTP framework)
+- Gin
 - PostgreSQL
+
+Frontend
+
+- React
+- TypeScript
+- Vite
+
+Infrastructure
+
 - Docker
-- REST API
+- Docker Compose
 
 ---
 
-ARCHITECTURE
+FEATURES
 
-Client
-↓
-HTTP API (Gin)
-↓
-Service Layer
-↓
-Repository Layer
-↓
-PostgreSQL
+Admin
+
+- Create coupons
+- View products
+- Update products
+- Delete unsold products
+- Protected with authentication
+
+Direct Customer
+
+- View available coupons
+- Purchase coupons directly from the website
+- Receive coupon value only after successful purchase
+
+Reseller API
+
+- Get available products
+- Get product by ID
+- Purchase coupon with reseller price validation
+- Protected with API token authentication
+
+---
+
+PRICING RULES
+
+Each coupon has:
+
+cost_price
+margin_percentage
+
+The backend calculates:
+
+minimum_sell_price = cost_price \* (1 + margin_percentage / 100)
+
+Rules enforced by the backend:
+
+- cost_price >= 0
+- margin_percentage >= 0
+- minimum_sell_price is never accepted from client input
+- reseller_price must be >= minimum_sell_price
 
 ---
 
 PROJECT STRUCTURE
 
-backend
-├─ cmd
-│ └─ server
-│ └─ main.go
+coupon-marketplace
 │
-├─ internal
-│ ├─ handlers
-│ ├─ services
-│ ├─ repository
-│ ├─ middleware
-│ └─ database
+├ backend
+│ ├ cmd
+│ │ └ server
+│ │ └ main.go
+│ ├ db
+│ │ └ migrations
+│ │ ├ 001_init.sql
+│ │ └ 002_seed_data.sql
+│ └ internal
+│ ├ database
+│ │ └ db.go
+│ ├ handlers
+│ ├ middleware
+│ ├ models
+│ ├ repository
+│ └ services
 │
-├─ db
-│ └─ migrations
+├ frontend
+│ ├ public
+│ └ src
+│ ├ api
+│ ├ assets
+│ ├ components
+│ ├ pages
+│ └ types
 │
-├─ go.mod
-└─ go.sum
+├ docker-compose.yml
+├ README.md
+└ .gitignore
 
 ---
 
 RUNNING THE PROJECT
 
-1. Clone the repository
-
-git clone https://github.com/liorefaelbe/coupon-marketplace.git
-cd coupon-marketplace
-
-2. Start the services
+From the project root run:
 
 docker compose up --build
 
-3. The API will be available at
+This will start:
 
+- PostgreSQL database
+- Go backend API
+- React frontend
+
+---
+
+APPLICATION URLS
+
+Frontend
+http://localhost:5173
+
+Backend API
 http://localhost:8080
 
----
-
-ENVIRONMENT VARIABLES
-
-The reseller API requires a Bearer token.
-
-Example token used in development:
-
-RESELLER_TOKEN=super-secret-reseller-token
-
-Example request header:
-
-Authorization: Bearer super-secret-reseller-token
+Health Check
+http://localhost:8080/health
 
 ---
 
-HEALTH CHECK
+DEFAULT CREDENTIALS
 
-Endpoint:
+Admin login
 
-GET /health
+username: admin
+password: admin123
 
-Example response:
+Reseller API token
 
-{
-"status": "ok"
-}
+super-secret-reseller-token
 
 ---
+
+API OVERVIEW
 
 ADMIN API
 
 Create coupon
-
 POST /admin/coupons
 
-Example body:
+Get all products
+GET /admin/products
+
+Get product by ID
+GET /admin/products/{id}
+
+Update product
+PUT /admin/products/{id}
+
+Delete product
+DELETE /admin/products/{id}
+
+---
+
+CUSTOMER API
+
+Get available products
+GET /store/products
+
+Get product by ID
+GET /store/products/{id}
+
+Purchase coupon
+POST /store/products/{id}/purchase
+
+---
+
+RESELLER API
+
+Get available products
+GET /api/v1/products
+
+Get product by ID
+GET /api/v1/products/{id}
+
+Purchase product
+POST /api/v1/products/{id}/purchase
+
+Header required
+
+Authorization: Bearer super-secret-reseller-token
+
+Example body
+
+{
+"reseller_price": 120
+}
+
+---
+
+EXAMPLE ADMIN COUPON CREATION
+
+POST /admin/coupons
 
 {
 "name": "Amazon $100",
 "description": "Gift card",
-"image_url": "https://image.com",
+"image_url": "https://example.com/image.jpg",
 "cost_price": 80,
 "margin_percentage": 25,
 "value_type": "STRING",
 "value": "ABCD-1234"
 }
 
-List products
-
-GET /admin/products
-
-Get product
-
-GET /admin/products/{id}
-
-Update product
-
-PUT /admin/products/{id}
-
-Delete product
-
-DELETE /admin/products/{id}
-
 ---
 
-RESELLER API
-
-Requires header:
-
-Authorization: Bearer super-secret-reseller-token
-
-List available products
-
-GET /api/v1/products
-
-Get product details
-
-GET /api/v1/products/{id}
-
-Purchase coupon
-
-POST /api/v1/products/{id}/purchase
-
-Example request body:
-
-{
-"reseller_price": 120
-}
-
-Example response:
+EXAMPLE PURCHASE RESPONSE
 
 {
 "product_id": "uuid",
-"final_price": 120,
+"final_price": 100,
 "value_type": "STRING",
 "value": "ABCD-1234"
 }
 
 ---
 
-BUSINESS LOGIC
+SEED DATA
 
-The system enforces the following rules:
+Database tables and seed data are created automatically when running:
 
-- Coupons cannot be sold twice
-- Reseller price must be greater than or equal to the minimum selling price
-- Coupon purchase uses a database transaction to prevent race conditions
-
----
-
-DATABASE
-
-PostgreSQL is used for persistence.
-
-Tables:
-
-products
-coupons
-
-Each coupon is linked to a product.
+docker compose down -v
+docker compose up --build
 
 ---
 
-PROJECT PURPOSE
+NOTES
 
-This project demonstrates:
+- Coupon value is returned only after successful purchase
+- Direct customers always buy at the displayed price
+- Resellers cannot sell below the minimum allowed selling price
+- Backend follows layered architecture:
+  handlers → services → repository → database
 
-- layered backend architecture
-- transactional database operations
-- REST API design
-- containerized development environment
+---
+
+Author
+Lior Refael Berkovits
