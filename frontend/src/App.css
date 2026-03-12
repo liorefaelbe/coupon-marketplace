@@ -283,6 +283,12 @@ button:hover {
     flex-direction: column;
     align-items: flex-start;
   }
+  .product-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+  }
 
   .tabs {
     flex-direction: column;

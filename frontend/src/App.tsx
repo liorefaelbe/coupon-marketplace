@@ -42,7 +42,7 @@ function App() {
     <div className="page">
       <header className="hero">
         <h1>Digital Coupon Marketplace</h1>
-        <p>Dark mode storefront with protected admin access.</p>
+        <p>Find The Gift Card You've Been Looking For.</p>
       </header>
 
       <Tabs mode={mode} onCustomerClick={() => setMode("customer")} onAdminClick={handleOpenAdmin} />

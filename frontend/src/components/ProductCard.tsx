@@ -1,4 +1,5 @@
 import type { Product } from "../types/types";
+import placeholder from "../assets/placeholder2.png";
 
 type ProductCardProps = {
   product: Product;
@@ -9,10 +10,10 @@ function ProductCard({ product, onBuy }: ProductCardProps) {
   return (
     <div className="productCard">
       <img
-        src={product.image_url}
+        src={product.image_url || placeholder}
         alt={product.name}
         onError={(e) => {
-          e.currentTarget.src = "https://via.placeholder.com/300x200?text=Coupon";
+          e.currentTarget.src = placeholder;
         }}
       />
       <div className="productBody">
